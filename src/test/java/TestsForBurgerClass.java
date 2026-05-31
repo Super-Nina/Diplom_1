@@ -1,30 +1,46 @@
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import praktikum.Bun;
 import praktikum.Burger;
 import praktikum.Ingredient;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestsForBurgerClass extends BaseIUTest {
+@RunWith(MockitoJUnitRunner.class)
+public class TestsForBurgerClass {
+    // Создаем мок булочки
+    @Mock
+    private Bun mockBun;
+
+    // Создаем мок первого ингредиента
+    @Mock
+    private Ingredient firstMockIngredient;
+
+    // Создаем мок второго ингредиента
+    @Mock
+    private Ingredient secondMockIngredient;
+
 // тестирование метода добавления ингредиента
     @Test
     public void shouldAddIngredientToBurger() {
         Burger burger = new Burger();
-        burger.setBuns(selectedBun);
-        burger.addIngredient(selectedIngredient);
+        burger.setBuns(mockBun);
+        burger.addIngredient(firstMockIngredient);
         assertEquals(1, burger.ingredients.size());
     }
 // тестирование метода удаления ингредиента
     @Test
     public void shouldRemoveIngredientFromBurger() {
     Burger burger = new Burger();
-    burger.setBuns(selectedBun);
-        // добавляем несколько ингредиентов
-        for (int i = 0; i < 3; i++) {
-            burger.addIngredient(selectedIngredient);
-        }
+    burger.setBuns(mockBun);
+// добавляем мок-ингредиенты
+    burger.addIngredient(firstMockIngredient);
+    burger.addIngredient(firstMockIngredient);
+    burger.addIngredient(firstMockIngredient);
+
     burger.removeIngredient(0);
     assertEquals(2, burger.ingredients.size());
     }
@@ -32,40 +48,29 @@ public class TestsForBurgerClass extends BaseIUTest {
     @Test
     public void shouldMoveIngredientInBurger() {
         Burger burger = new Burger();
-        burger.setBuns(selectedBun);
+        burger.setBuns(mockBun);
 
-        String firstIngredientName = selectedIngredient.getName();
+        burger.addIngredient(firstMockIngredient);
+        burger.addIngredient(secondMockIngredient);
 
-        List<Ingredient> allIngredients = getAllIngredients();
-        Random random = new Random();
-        Ingredient secondIngredient;
-        // повторяем, пока не получим второй ингредиент, отличающийся от первого
-        do {
-            int randomIndex = random.nextInt(allIngredients.size());
-            secondIngredient = allIngredients.get(randomIndex);
-        } while (secondIngredient.equals(selectedIngredient));
-        String secondIngredientName = secondIngredient.getName();
-
-        burger.addIngredient(selectedIngredient);
-        burger.addIngredient(secondIngredient);
-        burger.moveIngredient(1,0);
-
-        List<String> expectedOrder = List.of(secondIngredientName, firstIngredientName);
-        List<String> actualOrder = new ArrayList<>();
-        for (Ingredient ingredient : burger.ingredients) {
-            actualOrder.add(ingredient.getName());
-        }
+        burger.moveIngredient(1, 0);
         assertEquals("Порядок ингредиентов после перемещения не соответствует ожидаемому",
-                expectedOrder, actualOrder);
+                secondMockIngredient, burger.ingredients.get(0));
     }
 
     // тестирование метода получения цены
     @Test
     public void shouldCalculateCorrectlyPriceOfBurger(){
         Burger burger = new Burger();
-        burger.setBuns(selectedBun);
-        burger.addIngredient(selectedIngredient);
-        float expectedBurgerPrice = selectedBun.getPrice()*2 + selectedIngredient.getPrice();
+
+// Настраиваем моки
+        Mockito.when(mockBun.getPrice()).thenReturn(100f);
+        Mockito.when(firstMockIngredient.getPrice()).thenReturn(150f);
+
+
+        burger.setBuns(mockBun);
+        burger.addIngredient(firstMockIngredient);
+        float expectedBurgerPrice = 350f;
         float actualBurgerPrice = burger.getPrice();
         assertEquals(expectedBurgerPrice,actualBurgerPrice,0.001f);
     }
